@@ -10,7 +10,7 @@ logger = get_logger(__name__)
 
 
 def _load_net():
-    with resources.open_file('resources/imgreco/inventory/ark_material.onnx') as f:
+    with resources.open_file('inventory/ark_material.onnx') as f:
         data = f.read()
         net = cv2.dnn.readNetFromONNX(data)
         return net
@@ -20,7 +20,7 @@ ark_material_net = _load_net()
 
 
 def _load_index():
-    with resources.open_file('resources/imgreco/inventory/index_itemid_relation.json') as f:
+    with resources.open_file('inventory/index_itemid_relation.json') as f:
         data = json.load(f)
         return data['idx2id'], data['id2idx'], data['idx2name']
 
@@ -130,7 +130,7 @@ def get_item_id(cv_img):
 def get_quantity(num_img):
     logger.logimage(num_img)
     x_threshold = int(num_img.height * 0.25) + 1
-    numimg = imgops.crop_blackedge2(num_img, 150, x_threshold)
+    numimg = imgops.crop_blackedge2(num_img, 130, x_threshold)
     logger.logimage(numimg)
 
     if numimg is not None:

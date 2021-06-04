@@ -164,6 +164,23 @@ def check_end_operation_alt(img):
     return mse < 6502
 
 
+def check_end_operation2(img, threshold=0.8):
+    cv_screen = np.asarray(img.convert('L'))
+    h, w = cv_screen.shape[:2]
+    scale = h / 1080
+    if scale != 1:
+        cv_screen = cv2.resize(cv_screen, (int(w/scale), 1080))
+    template = np.asarray(resources.load_image_cached('end_operation/end2.png', 'L'))
+    res = cv2.matchTemplate(cv_screen, template, cv2.TM_CCOEFF_NORMED)
+    min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(res)
+    return max_val > threshold
+
+
+def get_end2_rect(img):
+    vw, vh = util.get_vwvh(img.size)
+    return 38.594 * vw, 88.056 * vh, 61.484 * vw, 95.694 * vh
+
+
 def get_dismiss_level_up_popup_rect(viewport):
     vw, vh = util.get_vwvh(viewport)
     return (100 * vw - 67.315 * vh, 16.019 * vh, 100 * vw - 5.185 * vh, 71.343 * vh)
@@ -214,7 +231,7 @@ def recognize(im):
     x, y = 6.667 * vh, 18.519 * vh
     linedet = items.crop((x, y, x + 1, items.height)).convert('L')
     d = np.asarray(linedet)
-    linedet = find_jumping(d.reshape(linedet.height), 64)
+    linedet = find_jumping(d.reshape(linedet.height), 55)
     if len(linedet) >= 2:
         linetop, linebottom, *_ = linedet
     else:
@@ -231,7 +248,7 @@ def recognize(im):
     logger.logimage(grouping.resize((grouping.width, 16)))
 
     d = np.array(grouping, dtype=np.int16)[0]
-    points = [0, *find_jumping(d, 64)]
+    points = [0, *find_jumping(d, 55)]
     if len(points) % 2 != 0:
         raise RuntimeError('possibly incomplete item list')
     finalgroups = list(zip(*[iter(points)] * 2))  # each_slice(2)

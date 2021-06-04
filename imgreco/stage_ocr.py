@@ -16,7 +16,7 @@ logger = get_logger(__name__)
 
 @lru_cache(maxsize=1)
 def _load_svm():
-    with resources.open_file('resources/imgreco/stage_ocr/svm_data.zip') as f:
+    with resources.open_file('stage_ocr/svm_data.zip') as f:
         zf = zipfile.ZipFile(f, 'r')
         ydoc = zf.read('svm_data.dat').decode('utf-8')
         fs = cv2.FileStorage(ydoc, cv2.FileStorage_READ | cv2.FileStorage_MEMORY)
@@ -28,7 +28,7 @@ def _load_svm():
 
 @lru_cache(maxsize=1)
 def _load_onnx_model():
-    with resources.open_file('resources/imgreco/stage_ocr/chars.onnx') as f:
+    with resources.open_file('stage_ocr/chars.onnx') as f:
         data = f.read()
         net = cv2.dnn.readNetFromONNX(data)
         return net
@@ -210,6 +210,15 @@ def do_tag_ocr_svm(img):
 
 def do_tag_ocr_dnn(img):
     return predict_cv(img)
+
+
+def do_img_ocr(pil_img):
+    img = pil_to_cv_gray_img(pil_img)
+    # cv2.imshow('test', img)
+    # cv2.waitKey()
+    img = thresholding(img)
+    remove_holes(img)
+    return do_tag_ocr(img)
 
 
 stage_icon1 = pil_to_cv_gray_img(resources.load_image('stage_ocr/stage_icon1.png'))

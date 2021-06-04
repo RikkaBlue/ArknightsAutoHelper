@@ -3,6 +3,8 @@ from typing import Dict, List
 
 stage_maps = {}
 map_anchors = {}
+ep2region: Dict[int, int] = {}
+region2ep: Dict[int, List[int]] = {}
 stage_maps_linear: Dict[str, List[str]] = {}
 _invalid_stages = []
 
@@ -86,10 +88,12 @@ def initialize():
         stage_maps[prefix] = {prefix + '-1': material1, prefix + '-2': material2, prefix + '-3': material3,
                               prefix + '-4': material4, prefix + '-5': material5}
         map_anchors[prefix] = [prefix + '-1']
+        stage_maps_linear[prefix] = stage_maps[prefix].keys()
 
     # socs
     for infix in 'ABCD':
         map_anchors['PR-' + infix] = ['PR-%s-1' % infix]
+        stage_maps_linear['PR-%s' % infix] = ['PR-%s-1' % infix, 'PR-%s-2' % infix]
     vec0 = vec(0, 0)
     stage_maps['PR-A'] = {'PR-A-1': vec0, 'PR-A-2': vec(401, -188)}
     stage_maps['PR-B'] = {'PR-B-1': vec0, 'PR-B-2': vec(456, -197)}
@@ -110,7 +114,8 @@ def initialize():
     stage_maps_linear['ep05'] = ['5-1', '5-2', 'S5-1', '5-3', '5-4', '5-5', '5-6', 'S5-3', 'S5-4', '5-7', '5-8', '5-9',
                                  'S5-5', 'S5-6', 'S5-7', 'S5-8', '5-10', 'S5-9']
     stage_maps_linear['ep06'] = ['6-1', '6-2', '6-3', '6-4', '6-5', '6-6', '6-7', '6-8', 'TR-16', '6-9', '6-10', 'S6-1',
-                                 'S6-2', '6-11', '6-12', '6-13', '6-14', '6-15', 'S6-3', 'S6-4', '6-16', '6-17', '6-18']
+                                 'S6-2', '6-11', '6-12', '6-13', '6-14', '6-15', 'S6-3', 'S6-4', '6-16', '6-17', '6-18',
+                                 'H6-1', 'H6-4']
     stage_maps_linear['ep07'] = ['7-1', '7-2', '7-3', '7-4', '7-5', 'TR-17', '7-6', '7-7', '7-8', '7-9', '7-10', '7-11',
                                  '7-12', '7-13', '7-14', '7-15', '7-16', 'S7-1', 'S7-2', '7-17', '7-18', '7-19', '7-20']
     stage_maps_linear['ep08'] = ['R8-1', 'M8-1', 'TR-18', 'R8-2', 'M8-2', 'R8-3', 'M8-3', 'R8-4', 'M8-4', 'R8-5',
@@ -119,7 +124,18 @@ def initialize():
 
     global _invalid_stages
     _invalid_stages = ['1-2', '1-11', '5-11', '6-13', '6-17', '6-18', '7-1', '7-7', '7-19', '7-20', 'M8-1', 'M8-2',
-                       'M8-3', 'M8-4', 'M8-5', 'EG-1', 'EG-2', 'EG-3', 'JT8-1', 'EG-4', 'END8-1', 'EG-5']
+                       'M8-3', 'M8-4', 'M8-5', 'EG-1', 'EG-2', 'EG-3', 'JT8-1', 'EG-4', 'END8-1', 'EG-5',
+                       'H6-1', 'H6-4']
+    tmp = []
+    for i in range(4):
+        ep2region[i] = 0
+        tmp.append(i)
+    region2ep[0] = tmp
+    tmp = []
+    for i in range(4, 9):
+        ep2region[i] = 1
+        tmp.append(i)
+    region2ep[1] = tmp
 
 
 def is_invalid_stage(stage):
